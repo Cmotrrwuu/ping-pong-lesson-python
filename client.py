@@ -40,7 +40,10 @@ def receive():
 # --- ШРИФТИ ---
 font_win = font.Font(None, 72)
 font_main = font.Font(None, 36)
+
 # --- ЗОБРАЖЕННЯ ----
+bg_image = image.load("background.png")
+bg_image = transform.scale(bg_image, (WIDTH, HEIGHT))
 
 # --- ЗВУКИ ---
 
@@ -50,13 +53,14 @@ winner = None
 you_winner = None
 my_id, game_state, buffer, client = connect_to_server()
 Thread(target=receive, daemon=True).start()
+
 while True:
     for e in event.get():
         if e.type == QUIT:
             exit()
 
     if "countdown" in game_state and game_state["countdown"] > 0:
-        screen.fill((0, 0, 0))
+        screen.blit(bg_image, (0, 0))  # Малюємо фон під час відліку
         countdown_text = font.Font(None, 72).render(str(game_state["countdown"]), True, (255, 255, 255))
         screen.blit(countdown_text, (WIDTH // 2 - 20, HEIGHT // 2 - 30))
         display.update()
@@ -88,12 +92,12 @@ while True:
         continue  # Блокує гру після перемоги
 
     if game_state:
-        screen.fill((30, 30, 30))
+        screen.blit(bg_image, (0, 0))  # Малюємо фон під час гри
         draw.rect(screen, (0, 255, 0), (20, game_state['paddles']['0'], 20, 100))
         draw.rect(screen, (255, 0, 255), (WIDTH - 40, game_state['paddles']['1'], 20, 100))
         draw.circle(screen, (255, 255, 255), (game_state['ball']['x'], game_state['ball']['y']), 10)
         score_text = font_main.render(f"{game_state['scores'][0]} : {game_state['scores'][1]}", True, (255, 255, 255))
-        screen.blit(score_text, (WIDTH // 2 -25, 20))
+        screen.blit(score_text, (WIDTH // 2 - 25, 20))
 
         if game_state['sound_event']:
             if game_state['sound_event'] == 'wall_hit':
@@ -104,6 +108,7 @@ while True:
                 pass
 
     else:
+        screen.blit(bg_image, (0, 0))  # Малюємо фон під час очікування
         wating_text = font_main.render(f"Очікування гравців...", True, (255, 255, 255))
         screen.blit(wating_text, (WIDTH // 2 - 25, 20))
 
